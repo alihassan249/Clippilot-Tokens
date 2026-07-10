@@ -183,6 +183,8 @@ app.get('/search', (req, res) => {
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-app.listen(3721, function () {
-  console.log('ClipPilot Token Manager running on port 3721');
+const PORT = process.env.PORT || 3721;
+
+app.listen(PORT, () => {
+  console.log(`ClipPilot Token Manager running on port ${PORT}`);
 });

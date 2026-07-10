@@ -93,7 +93,7 @@ app.post('/channel', (req, res) => {
   const authUrl =
     'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + encodeURIComponent(gmailRow.client_id) +
     '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
-    '&response_type=code&scope=' + encodeURIComponent('https://www.googleapis.com/auth/youtube.upload') +
+    '&response_type=code&scope=' + encodeURIComponent('https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.upload') +
     '&access_type=offline&prompt=consent&state=' + state;
 
   res.json({ authUrl, state });

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ClipPilot Token Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;overflow:hidden}
+.app{display:flex;height:100vh}
+
+/* ---------- Sidebar ---------- */
+.sidebar{width:300px;flex-shrink:0;background:#141c2e;border-right:1px solid #263148;display:flex;flex-direction:column}
+.sidebar-header{padding:18px 18px 12px;border-bottom:1px solid #263148}
+.sidebar-header h1{font-size:1.15rem;color:#38bdf8;display:flex;align-items:center;gap:8px}
+.sidebar-header .sub{font-size:.75rem;color:#64748b;margin-top:4px}
+.sidebar-search{padding:12px 18px}
+.sidebar-search input{width:100%;padding:8px 10px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:.85rem}
+.sidebar-search input:focus{outline:none;border-color:#38bdf8}
+.add-gmail-btn{margin:0 18px 12px;padding:9px;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600}
+.add-gmail-btn:hover{background:#15803d}
+.gmail-list{flex:1;overflow-y:auto;padding:0 10px 10px}
+.gmail-item{padding:11px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.gmail-item:hover{background:#1e293b}
+.gmail-item.active{background:#0c2d48;border:1px solid #0284c7}
+.gmail-item .name{font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gmail-item .count{font-size:.7rem;color:#64748b;background:#0f172a;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.gmail-item .del-x{opacity:0;font-size:.75rem;color:#fca5a5;background:none;border:none;cursor:pointer;padding:2px 4px;flex-shrink:0}
+.gmail-item:hover .del-x{opacity:1}
+.empty-sidebar{padding:24px 16px;color:#475569;font-size:.82rem;text-align:center}
+
+/* ---------- Main ---------- */
+.main{flex:1;overflow-y:auto;padding:26px 34px}
+.main-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:#475569;text-align:center}
+.main-empty .icon{font-size:52px;margin-bottom:14px}
+
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.main-header h2{font-size:1.3rem;color:#f1f5f9;display:flex;align-items:center;gap:10px}
+.main-header .created{font-size:.75rem;color:#64748b;margin-top:4px}
+.header-actions{display:flex;gap:10px}
+.btn{padding:9px 16px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600}
+.btn-primary{background:#0284c7;color:#fff}
+.btn-primary:hover{background:#0369a1}
+.btn-secondary{background:#1e293b;color:#e2e8f0;border:1px solid #334155}
+.btn-secondary:hover{background:#263148}
+
+.toolbar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.toolbar input{flex:1;min-width:220px;padding:9px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:.87rem}
+.toolbar input:focus{outline:none;border-color:#38bdf8}
+
+.table-card{background:#1e293b;border-radius:12px;border:1px solid #334155;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:.87rem}
+th{background:#0f172a;color:#94a3b8;padding:12px 14px;text-align:left;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.03em}
+td{padding:12px 14px;border-bottom:1px solid #263148;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.token-cell{font-size:.72rem;color:#4ade80;word-break:break-all;max-width:260px;font-family:monospace}
+.copy-btn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;background:#0284c7;color:#fff}
+.copy-btn:hover{background:#0369a1}
+.copy-btn.copied{background:#16a34a}
+.del-btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;background:#450a0a;color:#fca5a5;margin-left:6px}
+.del-btn:hover{background:#7f1d1d}
+.empty-table{text-align:center;padding:40px;color:#475569}
+.gmail-tag{font-size:.72rem;color:#38bdf8;background:#0c2d48;padding:2px 8px;border-radius:20px}
+
+/* ---------- Modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.modal{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:26px 28px;width:400px;max-width:90vw}
+.modal h3{color:#38bdf8;margin-bottom:16px;font-size:1.05rem}
+.field{margin-bottom:14px}
+.field label{font-size:.8rem;color:#94a3b8;display:block;margin-bottom:5px}
+.field input{width:100%;padding:9px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:.88rem}
+.field input:focus{outline:none;border-color:#38bdf8}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.modal-error{color:#fca5a5;font-size:.8rem;margin-top:8px;display:none}
+.status-line{font-size:.82rem;color:#93c5fd;margin-top:12px;display:none}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;bottom:24px;right:24px;background:#16a34a;color:#fff;padding:12px 18px;border-radius:8px;font-size:.85rem;box-shadow:0 6px 20px rgba(0,0,0,.3);display:none;z-index:60}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>🎬 ClipPilot</h1>
+      <div class="sub">Token Management System</div>
+    </div>
+    <div class="sidebar-search">
+      <input type="text" id="gmailSearch" placeholder="🔍 Search Gmail..." oninput="renderGmailList()"/>
+    </div>
+    <button class="add-gmail-btn" onclick="openAddGmailModal()">+ Add Gmail</button>
+    <div class="gmail-list" id="gmailList"></div>
+  </div>
+
+  <div class="main" id="main">
+    <div class="main-empty">
+      <div class="icon">📭</div>
+      <p>Select a Gmail account on the left,<br/>or add a new one to get started.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Add Gmail Modal -->
+<div class="overlay" id="addGmailOverlay">
+  <div class="modal">
+    <h3>➕ Add Gmail Account</h3>
+    <div class="field"><label>Gmail Address</label><input type="email" id="ag_gmail" placeholder="you@gmail.com"/></div>
+    <div class="field"><label>Client ID</label><input type="text" id="ag_clientId" placeholder="Google OAuth Client ID"/></div>
+    <div class="field"><label>Client Secret</label><input type="password" id="ag_clientSecret" placeholder="Client Secret"/></div>
+    <p class="modal-error" id="ag_error"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('addGmailOverlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddGmail()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Token Modal -->
+<div class="overlay" id="genTokenOverlay">
+  <div class="modal">
+    <h3>🔑 Generate New Token</h3>
+    <div class="field"><label>Channel Handle</label><input type="text" id="gt_channel" placeholder="@channelname"/></div>
+    <p class="modal-error" id="gt_error"></p>
+    <p class="status-line" id="gt_status">Waiting for Google login in the new tab...</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('genTokenOverlay')">Cancel</button>
+      <button class="btn btn-primary" id="gt_submitBtn" onclick="submitGenerateToken()">Generate Token</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let gmails = [];
+let selectedGmail = null; // full object incl. channels
+let channelSearchTerm = '';
+let pollTimer = null;
+
+async function api(path, opts) {
+  const res = await fetch(path, opts);
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+  document.getElementById('ag_error').style.display = 'none';
+  document.getElementById('gt_error').style.display = 'none';
+  document.getElementById('gt_status').style.display = 'none';
+  document.getElementById('gt_submitBtn').disabled = false;
+  document.getElementById('gt_submitBtn').textContent = 'Generate Token';
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+/* ---------------- Gmail sidebar ---------------- */
+
+async function loadGmails() {
+  gmails = await api('/gmail');
+  renderGmailList();
+}
+
+function renderGmailList() {
+  const term = document.getElementById('gmailSearch').value.trim().toLowerCase();
+  const list = document.getElementById('gmailList');
+  const filtered = gmails.filter(g => g.gmail.toLowerCase().includes(term));
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-sidebar">No Gmail accounts yet.<br/>Click "Add Gmail" to begin.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(g => `
+    <div class="gmail-item ${selectedGmail && selectedGmail.id === g.id ? 'active' : ''}" onclick="selectGmail(${g.id})">
+      <span class="name">📧 ${escapeHtml(g.gmail)}</span>
+      <button class="del-x" title="Delete account" onclick="event.stopPropagation();deleteGmail(${g.id})">🗑</button>
+    </div>
+  `).join('');
+}
+
+async function selectGmail(id) {
+  selectedGmail = await api('/gmail/' + id);
+  channelSearchTerm = '';
+  renderGmailList();
+  renderMain();
+}
+
+async function deleteGmail(id) {
+  if (!confirm('Delete this Gmail account and all its channel tokens?')) return;
+  await api('/gmail/' + id, { method: 'DELETE' });
+  if (selectedGmail && selectedGmail.id === id) selectedGmail = null;
+  await loadGmails();
+  renderMain();
+}
+
+/* ---------------- Main panel ---------------- */
+
+function renderMain() {
+  const main = document.getElementById('main');
+  if (!selectedGmail) {
+    main.innerHTML = `<div class="main-empty"><div class="icon">📭</div><p>Select a Gmail account on the left,<br/>or add a new one to get started.</p></div>`;
+    return;
+  }
+  main.innerHTML = `
+    <div class="main-header">
+      <div>
+        <h2>📧 ${escapeHtml(selectedGmail.gmail)}</h2>
+        <div class="created">Added ${formatDate(selectedGmail.created_at)}</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openGenerateModal()">🔑 Generate New Token</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="channelSearch" placeholder="🔍 Search channels..." oninput="onChannelSearch(this.value)"/>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Channel</th><th>Refresh Token</th><th>Created</th><th>Actions</th></tr></thead>
+        <tbody id="channelTbl"></tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('channelSearch').value = channelSearchTerm;
+  renderChannelTable(selectedGmail.channels);
+}
+
+function onChannelSearch(value) {
+  channelSearchTerm = value;
+  const term = value.trim().toLowerCase();
+  const filtered = selectedGmail.channels.filter(c => c.channel_handler.toLowerCase().includes(term));
+  renderChannelTable(filtered);
+}
+
+function renderChannelTable(channels) {
+  const tbl = document.getElementById('channelTbl');
+  if (!tbl) return;
+  if (!channels.length) {
+    tbl.innerHTML = '<tr><td colspan="4"><div class="empty-table">No channels yet. Click "Generate New Token" to add one.</div></td></tr>';
+    return;
+  }
+  tbl.innerHTML = channels.map(c => `
+    <tr>
+      <td><b>${escapeHtml(c.channel_handler)}</b></td>
+      <td class="token-cell" id="token-${c.id}">${escapeHtml(c.refresh_token)}</td>
+      <td style="color:#94a3b8;font-size:.8rem">${formatDate(c.created_at)}</td>
+      <td>
+        <button class="copy-btn" id="copybtn-${c.id}" onclick="copyToken(${c.id})">📋 Copy</button>
+        <button class="del-btn" onclick="deleteChannel(${c.id})">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function copyToken(id) {
+  const tokenEl = document.getElementById('token-' + id);
+  const text = tokenEl.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copybtn-' + id);
+    const original = btn.textContent;
+    btn.textContent = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+  }).catch(() => showToast('Could not copy. Please copy manually.'));
+}
+
+async function deleteChannel(id) {
+  if (!confirm('Delete this channel token?')) return;
+  await api('/channel/' + id, { method: 'DELETE' });
+  selectedGmail = await api('/gmail/' + selectedGmail.id);
+  onChannelSearch(channelSearchTerm);
+}
+
+/* ---------------- Add Gmail flow ---------------- */
+
+function openAddGmailModal() {
+  document.getElementById('ag_gmail').value = '';
+  document.getElementById('ag_clientId').value = '';
+  document.getElementById('ag_clientSecret').value = '';
+  openModal('addGmailOverlay');
+}
+
+async function submitAddGmail() {
+  const gmail = document.getElementById('ag_gmail').value.trim();
+  const client_id = document.getElementById('ag_clientId').value.trim();
+  const client_secret = document.getElementById('ag_clientSecret').value.trim();
+  const errEl = document.getElementById('ag_error');
+  errEl.style.display = 'none';
+  if (!gmail || !client_id || !client_secret) {
+    errEl.textContent = 'All fields are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    await api('/gmail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gmail, client_id, client_secret })
+    });
+    closeModal('addGmailOverlay');
+    await loadGmails();
+    showToast('Gmail account saved!');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  }
+}
+
+/* ---------------- Generate Token flow ---------------- */
+
+function openGenerateModal() {
+  document.getElementById('gt_channel').value = '';
+  openModal('genTokenOverlay');
+}
+
+async function submitGenerateToken() {
+  const channel_handler = document.getElementById('gt_channel').value.trim();
+  const errEl = document.getElementById('gt_error');
+  const statusEl = document.getElementById('gt_status');
+  const btn = document.getElementById('gt_submitBtn');
+  errEl.style.display = 'none';
+  if (!channel_handler) {
+    errEl.textContent = 'Please enter a channel handle.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  try {
+    const data = await api('/channel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gmail_id: selectedGmail.id, channel_handler })
+    });
+    window.open(data.authUrl, '_blank');
+    statusEl.style.display = 'block';
+
+    pollTimer = setInterval(async () => {
+      try {
+        const s = await api('/token-status?state=' + data.state);
+        if (s.done) {
+          clearInterval(pollTimer); pollTimer = null;
+          closeModal('genTokenOverlay');
+          selectedGmail = await api('/gmail/' + selectedGmail.id);
+          await loadGmails();
+          renderMain();
+          showToast('Token generated for ' + channel_handler + '!');
+        } else if (s.error) {
+          clearInterval(pollTimer); pollTimer = null;
+          errEl.textContent = s.error;
+          errEl.style.display = 'block';
+          statusEl.style.display = 'none';
+          btn.disabled = false;
+          btn.textContent = 'Generate Token';
+        }
+      } catch (e) {}
+    }, 2000);
+
+    setTimeout(() => {
+      if (pollTimer) {
+        clearInterval(pollTimer); pollTimer = null;
+        statusEl.style.display = 'none';
+        btn.disabled = false;
+        btn.textContent = 'Generate Token';
+      }
+    }, 180000);
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Generate Token';
+  }
+}
+
+/* ---------------- Utils ---------------- */
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function formatDate(str) {
+  if (!str) return '—';
+  const d = new Date(str.replace(' ', 'T') + 'Z');
+  if (isNaN(d.getTime())) return str;
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+loadGmails();
+</script>
+</body>
+</html>

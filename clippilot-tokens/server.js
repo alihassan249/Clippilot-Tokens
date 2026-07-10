@@ -8,7 +8,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const REDIRECT_URI = 'https://clippilot.duckdns.org/callback';
+const REDIRECT_URI =
+  process.env.REDIRECT_URI || 'https://clippilot-tokens.onrender.com/callback';
 
 // In-memory maps for in-flight OAuth exchanges (never touch the database
 // until the token exchange actually succeeds).

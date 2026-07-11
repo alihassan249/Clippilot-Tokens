@@ -4,87 +4,142 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ClipPilot Token Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;overflow:hidden}
+:root{
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --border:#e7e9f0;
+  --text:#1e2233;
+  --muted:#8a8fa3;
+  --accent:#4f46e5;
+  --accent-dark:#4338ca;
+  --accent-soft:#eef0fe;
+  --green:#16a34a;
+  --green-soft:#ecfdf3;
+  --red:#dc2626;
+  --red-soft:#fef2f2;
+  --shadow:0 1px 2px rgba(20,20,43,.04),0 6px 20px rgba(20,20,43,.06);
+}
+body{font-family:'Inter',Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
 .app{display:flex;height:100vh}
 
 /* ---------- Sidebar ---------- */
-.sidebar{width:300px;flex-shrink:0;background:#141c2e;border-right:1px solid #263148;display:flex;flex-direction:column}
-.sidebar-header{padding:18px 18px 12px;border-bottom:1px solid #263148}
-.sidebar-header h1{font-size:1.15rem;color:#38bdf8;display:flex;align-items:center;gap:8px}
-.sidebar-header .sub{font-size:.75rem;color:#64748b;margin-top:4px}
-.sidebar-search{padding:12px 18px}
-.sidebar-search input{width:100%;padding:8px 10px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:.85rem}
-.sidebar-search input:focus{outline:none;border-color:#38bdf8}
-.add-gmail-btn{margin:0 18px 12px;padding:9px;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600}
-.add-gmail-btn:hover{background:#15803d}
-.gmail-list{flex:1;overflow-y:auto;padding:0 10px 10px}
-.gmail-item{padding:11px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.gmail-item:hover{background:#1e293b}
-.gmail-item.active{background:#0c2d48;border:1px solid #0284c7}
-.gmail-item .name{font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gmail-item .count{font-size:.7rem;color:#64748b;background:#0f172a;padding:2px 7px;border-radius:20px;flex-shrink:0}
-.gmail-item .del-x{opacity:0;font-size:.75rem;color:#fca5a5;background:none;border:none;cursor:pointer;padding:2px 4px;flex-shrink:0}
+.sidebar{width:300px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sidebar-header{padding:22px 20px 14px}
+.sidebar-header h1{font-size:1.2rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:9px;letter-spacing:-.02em}
+.sidebar-header .badge{display:inline-block;background:var(--accent);color:#fff;border-radius:8px;width:30px;height:30px;line-height:30px;text-align:center;font-size:1rem}
+.sidebar-header .sub{font-size:.76rem;color:var(--muted);margin-top:5px;margin-left:39px}
+.sidebar-search{padding:6px 20px 14px}
+.sidebar-search input{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:.85rem}
+.sidebar-search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.add-gmail-btn{margin:0 20px 14px;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:9px;cursor:pointer;font-size:.85rem;font-weight:600;transition:.15s}
+.add-gmail-btn:hover{background:var(--accent-dark)}
+.gmail-list{flex:1;overflow-y:auto;padding:0 12px 10px}
+.gmail-item{padding:11px 12px;border-radius:9px;cursor:pointer;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:.12s}
+.gmail-item:hover{background:var(--bg)}
+.gmail-item.active{background:var(--accent-soft);box-shadow:inset 0 0 0 1px #c7cbfa}
+.gmail-item .name{font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.gmail-item .del-x{opacity:0;font-size:.78rem;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 4px;flex-shrink:0;border-radius:5px}
+.gmail-item .del-x:hover{color:var(--red);background:var(--red-soft)}
 .gmail-item:hover .del-x{opacity:1}
-.empty-sidebar{padding:24px 16px;color:#475569;font-size:.82rem;text-align:center}
+.empty-sidebar{padding:26px 18px;color:var(--muted);font-size:.82rem;text-align:center;line-height:1.5}
+
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.user-email{font-size:.78rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.logout-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.78rem;font-weight:600}
+.logout-btn:hover{color:var(--red)}
 
 /* ---------- Main ---------- */
-.main{flex:1;overflow-y:auto;padding:26px 34px}
-.main-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:#475569;text-align:center}
-.main-empty .icon{font-size:52px;margin-bottom:14px}
+.main{flex:1;overflow-y:auto;padding:30px 40px}
+.main-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;color:var(--muted);text-align:center}
+.main-empty .icon{font-size:56px;margin-bottom:16px}
 
-.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
-.main-header h2{font-size:1.3rem;color:#f1f5f9;display:flex;align-items:center;gap:10px}
-.main-header .created{font-size:.75rem;color:#64748b;margin-top:4px}
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;flex-wrap:wrap;gap:12px}
+.main-header h2{font-size:1.4rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
+.main-header .created{font-size:.78rem;color:var(--muted);margin-top:5px}
 .header-actions{display:flex;gap:10px}
-.btn{padding:9px 16px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600}
-.btn-primary{background:#0284c7;color:#fff}
-.btn-primary:hover{background:#0369a1}
-.btn-secondary{background:#1e293b;color:#e2e8f0;border:1px solid #334155}
-.btn-secondary:hover{background:#263148}
+.btn{padding:10px 18px;border:none;border-radius:9px;cursor:pointer;font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg)}
 
 .toolbar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-.toolbar input{flex:1;min-width:220px;padding:9px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:.87rem}
-.toolbar input:focus{outline:none;border-color:#38bdf8}
+.toolbar input{flex:1;min-width:220px;padding:10px 13px;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:.87rem}
+.toolbar input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 
-.table-card{background:#1e293b;border-radius:12px;border:1px solid #334155;overflow:hidden}
+.table-card{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
 table{width:100%;border-collapse:collapse;font-size:.87rem}
-th{background:#0f172a;color:#94a3b8;padding:12px 14px;text-align:left;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.03em}
-td{padding:12px 14px;border-bottom:1px solid #263148;vertical-align:middle}
+th{background:#fafbfd;color:var(--muted);padding:13px 16px;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr:last-child td{border-bottom:none}
-.token-cell{font-size:.72rem;color:#4ade80;word-break:break-all;max-width:260px;font-family:monospace}
-.copy-btn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;background:#0284c7;color:#fff}
-.copy-btn:hover{background:#0369a1}
-.copy-btn.copied{background:#16a34a}
-.del-btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;background:#450a0a;color:#fca5a5;margin-left:6px}
-.del-btn:hover{background:#7f1d1d}
-.empty-table{text-align:center;padding:40px;color:#475569}
-.gmail-tag{font-size:.72rem;color:#38bdf8;background:#0c2d48;padding:2px 8px;border-radius:20px}
+tr:hover td{background:#fafbff}
+.token-cell{font-size:.72rem;color:#0f766e;word-break:break-all;max-width:260px;font-family:'SF Mono',Consolas,monospace;background:#f0fdfa;padding:6px 8px;border-radius:6px}
+.copy-btn{padding:7px 13px;border:none;border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;background:var(--accent);color:#fff;transition:.15s}
+.copy-btn:hover{background:var(--accent-dark)}
+.copy-btn.copied{background:var(--green)}
+.del-btn{padding:7px 11px;border:none;border-radius:7px;cursor:pointer;font-size:.78rem;background:var(--red-soft);color:var(--red);margin-left:6px;font-weight:600}
+.del-btn:hover{background:#fde2e2}
+.empty-table{text-align:center;padding:46px;color:var(--muted)}
 
 /* ---------- Modal ---------- */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay{position:fixed;inset:0;background:rgba(30,34,51,.35);display:none;align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(2px)}
 .overlay.show{display:flex}
-.modal{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:26px 28px;width:400px;max-width:90vw}
-.modal h3{color:#38bdf8;margin-bottom:16px;font-size:1.05rem}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 30px;width:400px;max-width:90vw;box-shadow:0 20px 60px rgba(20,20,43,.18)}
+.modal h3{color:var(--text);margin-bottom:18px;font-size:1.08rem;font-weight:700}
 .field{margin-bottom:14px}
-.field label{font-size:.8rem;color:#94a3b8;display:block;margin-bottom:5px}
-.field input{width:100%;padding:9px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:.88rem}
-.field input:focus{outline:none;border-color:#38bdf8}
-.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
-.modal-error{color:#fca5a5;font-size:.8rem;margin-top:8px;display:none}
-.status-line{font-size:.82rem;color:#93c5fd;margin-top:12px;display:none}
+.field label{font-size:.8rem;color:var(--muted);display:block;margin-bottom:6px;font-weight:500}
+.field input{width:100%;padding:10px 13px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:.88rem}
+.field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);background:#fff}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.modal-error{color:var(--red);font-size:.8rem;margin-top:8px;display:none;background:var(--red-soft);padding:9px 12px;border-radius:8px}
+.status-line{font-size:.82rem;color:var(--accent);margin-top:12px;display:none;background:var(--accent-soft);padding:9px 12px;border-radius:8px}
 
 /* ---------- Toast ---------- */
-.toast{position:fixed;bottom:24px;right:24px;background:#16a34a;color:#fff;padding:12px 18px;border-radius:8px;font-size:.85rem;box-shadow:0 6px 20px rgba(0,0,0,.3);display:none;z-index:60}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:13px 20px;border-radius:10px;font-size:.85rem;box-shadow:0 10px 30px rgba(0,0,0,.2);display:none;z-index:60;font-weight:500}
 .toast.show{display:block}
+
+/* ---------- Auth screen ---------- */
+.auth-wrap{height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#f6f7fb 0%,#eef0fe 100%)}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 38px;width:400px;max-width:90vw;box-shadow:0 20px 60px rgba(20,20,43,.1)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.auth-logo .badge{background:var(--accent);color:#fff;border-radius:10px;width:38px;height:38px;line-height:38px;text-align:center;font-size:1.2rem}
+.auth-logo h1{font-size:1.3rem;font-weight:800;letter-spacing:-.02em}
+.auth-card .tagline{color:var(--muted);font-size:.85rem;margin-bottom:26px}
+.auth-tabs{display:flex;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:22px}
+.auth-tab{flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--muted)}
+.auth-tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.auth-submit{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:9px;cursor:pointer;font-size:.9rem;font-weight:700;margin-top:6px;transition:.15s}
+.auth-submit:hover{background:var(--accent-dark)}
+.auth-submit:disabled{opacity:.6;cursor:default}
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- Auth screen -->
+<div class="auth-wrap" id="authScreen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-logo"><span class="badge">🎬</span><h1>ClipPilot</h1></div>
+    <p class="tagline">Sign in to manage your YouTube tokens privately.</p>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create Account</div>
+    </div>
+    <div class="field"><label>Email</label><input type="email" id="auth_email" placeholder="you@example.com"/></div>
+    <div class="field"><label>Password</label><input type="password" id="auth_password" placeholder="••••••••"/></div>
+    <p class="modal-error" id="auth_error"></p>
+    <button class="auth-submit" id="auth_submitBtn" onclick="submitAuth()">Log In</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="app" id="dashboard" style="display:none">
   <div class="sidebar">
     <div class="sidebar-header">
-      <h1>🎬 ClipPilot</h1>
+      <h1><span class="badge">🎬</span>ClipPilot</h1>
       <div class="sub">Token Management System</div>
     </div>
     <div class="sidebar-search">
@@ -92,6 +147,10 @@ tr:last-child td{border-bottom:none}
     </div>
     <button class="add-gmail-btn" onclick="openAddGmailModal()">+ Add Gmail</button>
     <div class="gmail-list" id="gmailList"></div>
+    <div class="sidebar-footer">
+      <span class="user-email" id="userEmailLabel"></span>
+      <button class="logout-btn" onclick="logout()">Log out</button>
+    </div>
   </div>
 
   <div class="main" id="main">
@@ -135,11 +194,14 @@ tr:last-child td{border-bottom:none}
 
 <script>
 let gmails = [];
-let selectedGmail = null; // full object incl. channels
+let selectedGmail = null;
 let channelSearchTerm = '';
 let pollTimer = null;
+let authMode = 'login';
 
 async function api(path, opts) {
+  opts = opts || {};
+  opts.credentials = 'same-origin';
   const res = await fetch(path, opts);
   let data = {};
   try { data = await res.json(); } catch (e) {}
@@ -163,6 +225,70 @@ function closeModal(id) {
   document.getElementById('gt_submitBtn').disabled = false;
   document.getElementById('gt_submitBtn').textContent = 'Generate Token';
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+/* ---------------- Auth ---------------- */
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+  document.getElementById('auth_submitBtn').textContent = mode === 'login' ? 'Log In' : 'Create Account';
+  document.getElementById('auth_error').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth_email').value.trim();
+  const password = document.getElementById('auth_password').value;
+  const errEl = document.getElementById('auth_error');
+  const btn = document.getElementById('auth_submitBtn');
+  errEl.style.display = 'none';
+  if (!email || !password) {
+    errEl.textContent = 'Email and password are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  try {
+    const data = await api(authMode === 'login' ? '/auth/login' : '/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    document.getElementById('userEmailLabel').textContent = data.email;
+    showAuthed();
+    await loadGmails();
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function logout() {
+  await api('/auth/logout', { method: 'POST' });
+  location.reload();
+}
+
+function showAuthed() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'flex';
+}
+function showAuthScreen() {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+async function init() {
+  try {
+    const me = await api('/auth/me');
+    document.getElementById('userEmailLabel').textContent = me.email;
+    showAuthed();
+    await loadGmails();
+  } catch (e) {
+    showAuthScreen();
+  }
 }
 
 /* ---------------- Gmail sidebar ---------------- */
@@ -252,8 +378,8 @@ function renderChannelTable(channels) {
   tbl.innerHTML = channels.map(c => `
     <tr>
       <td><b>${escapeHtml(c.channel_handler)}</b></td>
-      <td class="token-cell" id="token-${c.id}">${escapeHtml(c.refresh_token)}</td>
-      <td style="color:#94a3b8;font-size:.8rem">${formatDate(c.created_at)}</td>
+      <td><span class="token-cell" id="token-${c.id}">${escapeHtml(c.refresh_token)}</span></td>
+      <td style="color:var(--muted);font-size:.8rem">${formatDate(c.created_at)}</td>
       <td>
         <button class="copy-btn" id="copybtn-${c.id}" onclick="copyToken(${c.id})">📋 Copy</button>
         <button class="del-btn" onclick="deleteChannel(${c.id})">🗑</button>
@@ -389,12 +515,12 @@ function escapeHtml(str) {
 }
 function formatDate(str) {
   if (!str) return '—';
-  const d = new Date(str.replace(' ', 'T') + 'Z');
+  const d = new Date(str);
   if (isNaN(d.getTime())) return str;
   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-loadGmails();
+init();
 </script>
 </body>
 </html>
